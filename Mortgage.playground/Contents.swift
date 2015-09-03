@@ -4,7 +4,7 @@ import UIKit
 
 var str = "Hello, playground, let's code a Mortgage simulator app"
 
-//MARK: Helpers
+//MARK: - Helpers
 
 //: We add a method on Int to easily display from a number of months, the number of year & months it represents.
 extension Int {
@@ -24,12 +24,12 @@ extension Int {
     }
 }
 
-infix operator ^^ { }
-func ^^ (radix: Float, power: Int) -> Float {
-    return Float(pow(Double(radix), Double(power)))
+infix operator ^^ { associativity left precedence 160 }
+func ^^ (left: Float, right: Int) -> Float {
+    return powf(left, Float(right))
 }
 
-//MARK: Models
+//MARK: - Models
 
 struct MortgagePayment {
     let principal: Float
@@ -72,8 +72,7 @@ class Mortgage {
 
     func requiredMonthlyPayment() -> Float {
         //    M = P[i(1+i)^n]/[(1+i)^n -1]
-        let oneplusipown = (1 + monthlyInterestRate)^^months
-        return (amount * ((monthlyInterestRate * oneplusipown) / (oneplusipown - 1)))
+        return (amount * ((monthlyInterestRate * (1 + monthlyInterestRate)^^months) / ((1 + monthlyInterestRate)^^months - 1)))
     }
 
     func theoricalTotalInterestPaid() -> Float {
