@@ -82,6 +82,7 @@ class Mortgage {
     }
 
     func requiredMonthlyPayment() -> Float {
+      //FIXME: Highly unefficient
         //    M = P[i(1+i)^n]/[(1+i)^n -1]
         return (amount * ((monthlyInterestRate * (1 + monthlyInterestRate)^^months) / ((1 + monthlyInterestRate)^^months - 1)))
     }
@@ -90,22 +91,26 @@ class Mortgage {
         let totalPayment = requiredMonthlyPayment() * Float(months)
         return totalPayment - amount;
     }
+}
 
-    func nextPayment(extraPayment: Float) -> MortgagePayment {
-        let requiredPayment = requiredMonthlyPayment()
-        if (requiredPayment > balance) {
-            return MortgagePayment(principal: balance, interest: 0)
-        }
+//MARK: Mortgage Payment
 
-        let maximumPossiblePayment = min(requiredPayment+extraPayment, balance)
-        let interestDue = balance * monthlyInterestRate
-        return MortgagePayment(total: maximumPossiblePayment, interest: interestDue)
+extension Mortgage {
+  func next(extraPayment: Float) -> MortgagePayment {
+    let requiredPayment = requiredMonthlyPayment()
+    if (requiredPayment > balance) {
+      return MortgagePayment(principal: balance, interest: 0)
     }
 
-    func applyPayment(payment: MortgagePayment) {
-        balance -= payment.principal
-        actualInterestPaid += payment.interest
-    }
+    let maximumPossiblePayment = min(requiredPayment+extraPayment, balance)
+    let interestDue = balance * monthlyInterestRate
+    return MortgagePayment(total: maximumPossiblePayment, interest: interestDue)
+  }
+
+  func apply(payment: MortgagePayment) {
+    balance -= payment.principal
+    actualInterestPaid += payment.interest
+  }
 }
 
 
@@ -146,9 +151,9 @@ var month = 1
 while (mortgage.balance > 0) {
     let extraPayment = (month % 12 == 0) ? monthlyExtraPayment + anuallyExtraPayment : monthlyExtraPayment
 
-    let payment = mortgage.nextPayment(extraPayment: extraPayment)
+    let payment = mortgage.next(extraPayment: extraPayment)
     print("Payment : \(currencyFormatter.string(from: payment.principal)) + \(currencyFormatter.string(from: payment.interest)) = \(currencyFormatter.string(from: payment.total))")
-    mortgage.applyPayment(payment: payment)
+    mortgage.apply(payment: payment)
     print("\(month.toYearAndMonths()) --- Balance is \(currencyFormatter.string(from: mortgage.balance)) \n")
     month = month+1
 }
