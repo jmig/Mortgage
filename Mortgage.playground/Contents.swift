@@ -92,14 +92,14 @@ class Mortgage {
     }
 
     func nextPayment(extraPayment: Float) -> MortgagePayment {
-        let interestDue = balance * monthlyInterestRate
         let requiredPayment = requiredMonthlyPayment()
-
         if (requiredPayment > balance) {
             return MortgagePayment(principal: balance, interest: 0)
         }
 
-        return MortgagePayment(total: requiredPayment + extraPayment, interest: interestDue)
+        let maximumPossiblePayment = min(requiredPayment+extraPayment, balance)
+        let interestDue = balance * monthlyInterestRate
+        return MortgagePayment(total: maximumPossiblePayment, interest: interestDue)
     }
 
     func applyPayment(payment: MortgagePayment) {
@@ -111,11 +111,11 @@ class Mortgage {
 
 //MARK: Mortgage Params
 let homeValue: Float = 500000.00;
-let interestRatePercentage: Float = 3.9/100
+let interestRatePercentage: Float = 3.75/100
 let durationInYears = 30
 let downPaymentPercentage: Float = 20.0/100
-let monthlyExtraPayment: Float = 750.00
-let anuallyExtraPayment: Float = 1000.00
+let monthlyExtraPayment: Float = 0.00
+let anuallyExtraPayment: Float = 0.00
 
 let currencyFormatter = NumberFormatter()
 currencyFormatter.numberStyle = .currency
