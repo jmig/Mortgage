@@ -62,14 +62,24 @@ struct MortgagePayment {
 
 class Mortgage {
     let yearlyInterestRate: Float
-    var monthlyInterestRate: Float {
-        return yearlyInterestRate / 12
-    }
+    lazy var monthlyInterestRate: Float =  {
+        [unowned self] in
+        return self.yearlyInterestRate / 12
+    }()
     let years: Int
-    var months: Int {
-        return years * 12
-    }
+    lazy var months: Int =  {
+        [unowned self] in
+        return self.years * 12
+    }()
     let amount: Float
+    lazy var requiredMonthlyPayment: Float =  {
+        [unowned self] in
+        let monthlyInterestRate = self.monthlyInterestRate
+        let months = self.months
+        let amount = self.amount
+        //    M = P[i(1+i)^n]/[(1+i)^n -1]
+        return (amount * ((monthlyInterestRate * (1 + monthlyInterestRate)^^months) / ((1 + monthlyInterestRate)^^months - 1)))
+    }()
     var balance: Float
     var actualInterestPaid: Float
 
@@ -81,14 +91,8 @@ class Mortgage {
         self.actualInterestPaid = 0
     }
 
-    func requiredMonthlyPayment() -> Float {
-      //FIXME: Highly unefficient
-        //    M = P[i(1+i)^n]/[(1+i)^n -1]
-        return (amount * ((monthlyInterestRate * (1 + monthlyInterestRate)^^months) / ((1 + monthlyInterestRate)^^months - 1)))
-    }
-
     func theoricalTotalInterestPaid() -> Float {
-        let totalPayment = requiredMonthlyPayment() * Float(months)
+        let totalPayment = requiredMonthlyPayment * Float(months)
         return totalPayment - amount;
     }
 }
@@ -97,7 +101,7 @@ class Mortgage {
 
 extension Mortgage {
   func next(extraPayment: Float) -> MortgagePayment {
-    let requiredPayment = requiredMonthlyPayment()
+    let requiredPayment = requiredMonthlyPayment
     if (requiredPayment > balance) {
       return MortgagePayment(principal: balance, interest: 0)
     }
@@ -137,8 +141,7 @@ print("For a \(currencyFormatter.string(from: homeValue)) home, with a \(percent
 
 
 let mortgage = Mortgage(amount: amount, years: durationInYears, yearlyInterestRate: interestRatePercentage)
-let monthlyPayment = mortgage.requiredMonthlyPayment()
-print("Your monthly payment will be \(currencyFormatter.string(from: monthlyPayment)) \n")
+print("Your monthly payment will be \(currencyFormatter.string(from: mortgage.requiredMonthlyPayment)) \n")
 
 
 let totalInterestPaid = mortgage.theoricalTotalInterestPaid()
