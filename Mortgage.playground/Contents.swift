@@ -24,6 +24,17 @@ extension Int {
     }
 }
 
+extension NumberFormatter {
+  func string(from float: Float) -> String {
+    let number = NSNumber(value: float)
+    if let string = self.string(from: number) {
+      return string
+    } else {
+      return ""
+    }
+  }
+}
+
 infix operator ^^ { associativity left precedence 160 }
 func ^^ (left: Float, right: Int) -> Float {
     return powf(left, Float(right))
@@ -117,16 +128,16 @@ func mortgageAmount(homeValue : Float, downPaymentPercentage: Float) -> Float {
     return (homeValue - homeValue*downPaymentPercentage)
 }
 let amount = mortgageAmount(homeValue: homeValue, downPaymentPercentage: downPaymentPercentage)
-print("For a \(currencyFormatter.string(from: NSNumber(value: homeValue))!) home, with a \(percentageFormatter.string(from: NSNumber(value: downPaymentPercentage))!) downpayment, your mortgage amount will be : \(currencyFormatter.string(from: NSNumber(value: amount))!) \n")
+print("For a \(currencyFormatter.string(from: homeValue)) home, with a \(percentageFormatter.string(from:  downPaymentPercentage)) downpayment, your mortgage amount will be : \(currencyFormatter.string(from: amount)) \n")
 
 
 let mortgage = Mortgage(amount: amount, years: durationInYears, yearlyInterestRate: interestRatePercentage)
 let monthlyPayment = mortgage.requiredMonthlyPayment()
-print("Your monthly payment will be \(currencyFormatter.string(from: NSNumber(value: monthlyPayment))!) \n")
+print("Your monthly payment will be \(currencyFormatter.string(from: monthlyPayment)) \n")
 
 
 let totalInterestPaid = mortgage.theoricalTotalInterestPaid()
-print("Your total interest paid (if you pay only the required payment) will be \(currencyFormatter.string(from: NSNumber(value: totalInterestPaid))!) \n")
+print("Your total interest paid (if you pay only the required payment) will be \(currencyFormatter.string(from: totalInterestPaid)) \n")
 
 
 //MARK: Amortization
@@ -136,16 +147,16 @@ while (mortgage.balance > 0) {
     let extraPayment = (month % 12 == 0) ? monthlyExtraPayment + anuallyExtraPayment : monthlyExtraPayment
 
     let payment = mortgage.nextPayment(extraPayment: extraPayment)
-    print("Payment : \(currencyFormatter.string(from: NSNumber(value: payment.principal))!) + \(currencyFormatter.string(from: NSNumber(value: payment.interest))!) = \(currencyFormatter.string(from: NSNumber(value: payment.total))!)")
+    print("Payment : \(currencyFormatter.string(from: payment.principal)) + \(currencyFormatter.string(from: payment.interest)) = \(currencyFormatter.string(from: payment.total))")
     mortgage.applyPayment(payment: payment)
-    print("\(month.toYearAndMonths()) --- Balance is \(currencyFormatter.string(from: NSNumber(value: mortgage.balance))!) \n")
+    print("\(month.toYearAndMonths()) --- Balance is \(currencyFormatter.string(from: mortgage.balance)) \n")
     month = month+1
 }
 
-print("Your total interest paid are \(currencyFormatter.string(from: NSNumber(value: mortgage.actualInterestPaid))!) \n")
+print("Your total interest paid are \(currencyFormatter.string(from: mortgage.actualInterestPaid)) \n")
 
 if (mortgage.theoricalTotalInterestPaid() > mortgage.actualInterestPaid) {
     let interestSaving = mortgage.theoricalTotalInterestPaid()-mortgage.actualInterestPaid
-    print("You saved  \(currencyFormatter.string(from: NSNumber(value: interestSaving))!) in interest with those extra  payments\n")
+    print("You saved \(currencyFormatter.string(from: interestSaving)) in interest with those extra payments\n")
 }
 
