@@ -106,27 +106,27 @@ let downPaymentPercentage: Float = 20.0/100
 let monthlyExtraPayment: Float = 750.00
 let anuallyExtraPayment: Float = 1000.00
 
-let currencyFormatter = NSNumberFormatter()
-currencyFormatter.numberStyle = .CurrencyStyle
+let currencyFormatter = NumberFormatter()
+currencyFormatter.numberStyle = .currency
 
-let percentageFormatter = NSNumberFormatter()
-percentageFormatter.numberStyle = .PercentStyle
+let percentageFormatter = NumberFormatter()
+percentageFormatter.numberStyle = .percent
 
 
 func mortgageAmount(homeValue : Float, downPaymentPercentage: Float) -> Float {
     return (homeValue - homeValue*downPaymentPercentage)
 }
-let amount = mortgageAmount(homeValue, downPaymentPercentage)
-println("For a \(currencyFormatter.stringFromNumber(NSNumber(float: homeValue))!) home, with a \(percentageFormatter.stringFromNumber(NSNumber(float: downPaymentPercentage))!) downpayment, your mortgage amount will be : \(currencyFormatter.stringFromNumber(NSNumber(float: amount))!) \n")
+let amount = mortgageAmount(homeValue: homeValue, downPaymentPercentage: downPaymentPercentage)
+print("For a \(currencyFormatter.string(from: NSNumber(value: homeValue))!) home, with a \(percentageFormatter.string(from: NSNumber(value: downPaymentPercentage))!) downpayment, your mortgage amount will be : \(currencyFormatter.string(from: NSNumber(value: amount))!) \n")
 
 
 let mortgage = Mortgage(amount: amount, years: durationInYears, yearlyInterestRate: interestRatePercentage)
 let monthlyPayment = mortgage.requiredMonthlyPayment()
-println("Your monthly payment will be \(currencyFormatter.stringFromNumber(NSNumber(float: monthlyPayment))!) \n")
+print("Your monthly payment will be \(currencyFormatter.string(from: NSNumber(value: monthlyPayment))!) \n")
 
 
 let totalInterestPaid = mortgage.theoricalTotalInterestPaid()
-println("Your total interest paid (if you pay only the required payment) will be \(currencyFormatter.stringFromNumber(NSNumber(float: totalInterestPaid))!) \n")
+print("Your total interest paid (if you pay only the required payment) will be \(currencyFormatter.string(from: NSNumber(value: totalInterestPaid))!) \n")
 
 
 //MARK: Amortization
@@ -135,17 +135,17 @@ var month = 1
 while (mortgage.balance > 0) {
     let extraPayment = (month % 12 == 0) ? monthlyExtraPayment + anuallyExtraPayment : monthlyExtraPayment
 
-    let payment = mortgage.nextPayment(extraPayment)
-    println("Payment : \(currencyFormatter.stringFromNumber(NSNumber(float: payment.principal))!) + \(currencyFormatter.stringFromNumber(NSNumber(float: payment.interest))!) = \(currencyFormatter.stringFromNumber(NSNumber(float: payment.total))!)")
-    mortgage.applyPayment(payment)
-    println("\(month.toYearAndMonths()) --- Balance is \(currencyFormatter.stringFromNumber(NSNumber(float: mortgage.balance))!) \n")
-    month++
+    let payment = mortgage.nextPayment(extraPayment: extraPayment)
+    print("Payment : \(currencyFormatter.string(from: NSNumber(value: payment.principal))!) + \(currencyFormatter.string(from: NSNumber(value: payment.interest))!) = \(currencyFormatter.string(from: NSNumber(value: payment.total))!)")
+    mortgage.applyPayment(payment: payment)
+    print("\(month.toYearAndMonths()) --- Balance is \(currencyFormatter.string(from: NSNumber(value: mortgage.balance))!) \n")
+    month = month+1
 }
 
-println("Your total interest paid are \(currencyFormatter.stringFromNumber(NSNumber(float: mortgage.actualInterestPaid))!) \n")
+print("Your total interest paid are \(currencyFormatter.string(from: NSNumber(value: mortgage.actualInterestPaid))!) \n")
 
 if (mortgage.theoricalTotalInterestPaid() > mortgage.actualInterestPaid) {
     let interestSaving = mortgage.theoricalTotalInterestPaid()-mortgage.actualInterestPaid
-    println("You saved  \(currencyFormatter.stringFromNumber(NSNumber(float: interestSaving))!) in interest with those extra  payments\n")
+    print("You saved  \(currencyFormatter.string(from: NSNumber(value: interestSaving))!) in interest with those extra  payments\n")
 }
 
